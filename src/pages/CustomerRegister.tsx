@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, ArrowLeft } from "lucide-react";
 import { customerRegistrationSchema, CustomerRegistrationInput } from "@/lib/validations";
+import { api } from "@/lib/api";
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
@@ -28,31 +28,14 @@ const CustomerRegister = () => {
     setIsLoading(true);
     
     try {
-      // Generate email from username for auth
-      const email = `${data.username}@securbank.internal`;
-      const redirectUrl = `${window.location.origin}/customer/dashboard`;
-
-      const { error: signUpError, data: authData } = await supabase.auth.signUp({
-        email,
+      const res = await api.register({
+        fullName: data.fullName,
+        idNumber: data.idNumber,
+        accountNumber: data.accountNumber,
+        username: data.username,
         password: data.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            user_type: "customer",
-            full_name: data.fullName,
-            id_number: data.idNumber,
-            account_number: data.accountNumber,
-            username: data.username,
-          },
-        },
       });
-
-      if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
-          throw new Error("This username or account is already registered");
-        }
-        throw signUpError;
-      }
+      if (res.error) throw new Error(res.error);
 
       toast({
         title: "Registration successful!",

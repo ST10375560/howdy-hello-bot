@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, ArrowLeft } from "lucide-react";
 import { customerLoginSchema, CustomerLoginInput } from "@/lib/validations";
+import { api } from "@/lib/api";
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
@@ -28,28 +28,12 @@ const CustomerLogin = () => {
     setIsLoading(true);
     
     try {
-      const email = `${data.username}@securbank.internal`;
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+      const res = await api.login({
+        username: data.username,
+        accountNumber: data.accountNumber,
         password: data.password,
       });
-
-      if (signInError) {
-        throw new Error("Invalid credentials. Please check your username, account number, and password.");
-      }
-
-      // Verify account number matches
-      const { data: customer, error: customerError } = await supabase
-        .from("customers")
-        .select("account_number")
-        .eq("account_number", data.accountNumber)
-        .maybeSingle();
-
-      if (customerError || !customer) {
-        await supabase.auth.signOut();
-        throw new Error("Account number does not match our records.");
-      }
+      if (res.error) throw new Error(res.error);
 
       toast({
         title: "Welcome back!",
