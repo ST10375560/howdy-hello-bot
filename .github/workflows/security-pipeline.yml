@@ -35,8 +35,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Run npm audit (Frontend)
       run: npm audit --audit-level=moderate --json > frontend-audit.json || true
@@ -72,8 +72,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Run ESLint (Frontend)
       run: npm run lint
@@ -119,8 +119,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Run tests (Frontend)
       run: npm test
@@ -162,8 +162,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Build application
       run: |
@@ -233,8 +233,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Check for outdated dependencies
       run: |
@@ -278,8 +278,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        npm ci
-        cd server && npm ci
+        npm install
+        cd server && npm install
     
     - name: Build application
       run: |
