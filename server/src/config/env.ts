@@ -22,7 +22,7 @@ if (!process.env.MONGODB_URI || !process.env.SESSION_SECRET) {
 export const ENV = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: Number(process.env.PORT || 3001),
-  MONGODB_URI: process.env.MONGODB_URI || "mongodb://localhost:27017/international-payment-portal",
+  MONGODB_URI: process.env.MONGODB_URI || "mongodb+srv://AshtonZackey:Zackey101@cluster0.n7h5iw1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
   SESSION_SECRET: process.env.SESSION_SECRET || "change_me_in_dotenv",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:8080",
   HTTPS_ONLY: (process.env.HTTPS_ONLY || "false").toLowerCase() === "true",

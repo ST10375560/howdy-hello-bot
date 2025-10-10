@@ -59,22 +59,24 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
 async function start() {
   try {
-    if (!ENV.MONGODB_URI) {
-      console.error("MONGODB_URI is not configured. Set it in .env");
-      process.exit(1);
-    }
-    
-    // Skip MongoDB for now - we'll test other security features first
-    console.log("⚠️ Skipping MongoDB connection for testing other security features");
+    const port = ENV.PORT + 10 || 3011;
 
-    // Start HTTP server (SSL will be tested separately)
-    const port = ENV.PORT + 10; // Use port 3011 to avoid conflicts
+    if (ENV.MONGODB_URI && ENV.MONGODB_URI.startsWith("mongodb")) {
+      console.log("🔌 Connecting to MongoDB Atlas...");
+      await mongoose.connect(ENV.MONGODB_URI, {
+        serverSelectionTimeoutMS: 10000, // 10 seconds
+      });
+      console.log("✅ Connected to MongoDB Atlas");
+    } else {
+      console.warn("⚠️ Skipping MongoDB connection (MONGODB_URI missing or invalid)");
+    }
+
     app.listen(port, () => {
       console.log(`📡 API listening on http://localhost:${port}`);
-      console.log(`🔧 Testing security features without SSL for now`);
+      console.log(`🔧 Running without SSL for now`);
     });
   } catch (err) {
-    console.error("Failed to start server", err);
+    console.error("❌ Failed to start server:", err);
     process.exit(1);
   }
 }
