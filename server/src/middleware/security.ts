@@ -3,6 +3,8 @@ import cors from "cors";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
+import ExpressBrute from "express-brute";
+import MemoryStore from "express-brute/lib/MemoryStore";
 import { ENV } from "../config/env";
 import { type RequestHandler } from "express";
 
@@ -42,6 +44,22 @@ export const securityMiddleware = [
     message: "Too many requests, please try again later.",
   }) as unknown as RequestHandler,
 ];
+
+// Express Brute setup for brute force protection
+const store = new MemoryStore();
+
+export const bruteForceProtection = new ExpressBrute(store, {
+  freeRetries: 5, // Number of free retries
+  minWait: 5 * 60 * 1000, // 5 minutes
+  maxWait: 15 * 60 * 1000, // 15 minutes
+  lifetime: 24 * 60 * 60, // 24 hours
+  failCallback: (req, res, next, nextValidRequestDate) => {
+    res.status(429).json({
+      error: "Too many failed attempts, please try again later.",
+      nextValidRequestDate: nextValidRequestDate
+    });
+  }
+});
 
 export const enforceHttps: RequestHandler = (req, res, next) => {
   if (!ENV.HTTPS_ONLY) return next();

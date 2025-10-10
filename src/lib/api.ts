@@ -43,6 +43,9 @@ export const api = {
   login: (input: { username: string; accountNumber: string; password: string }) =>
     postJson<{ message: string; user: { username: string } }>("/api/auth/login", input),
 
+  employeeLogin: (input: { employeeNumber: string; password: string }) =>
+    postJson<{ message: string; user: { username: string; role: string } }>("/api/auth/employee/login", input),
+
   logout: () => postJson<{ message: string }>("/api/auth/logout", {}),
 
   me: async () => {
@@ -55,4 +58,42 @@ export const api = {
       return { error: e?.message || "Network error" };
     }
   },
+
+  // Transaction endpoints
+  createTransaction: (input: {
+    amount: string;
+    currency: string;
+    provider: string;
+    payeeAccountInfo: string;
+    swiftCode: string;
+  }) => postJson<{ message: string; transaction: any }>("/api/transactions", input),
+
+  getMyTransactions: async () => {
+    try {
+      const res = await fetch("/api/transactions/my", { credentials: "include" });
+      const json = await res.json();
+      if (!res.ok) return { error: json?.error || "Failed to fetch transactions" };
+      return { data: json } as ApiResult<{ transactions: any[] }>;
+    } catch (e: any) {
+      return { error: e?.message || "Network error" };
+    }
+  },
+
+  // Employee endpoints
+  getPendingTransactions: async () => {
+    try {
+      const res = await fetch("/api/transactions/pending", { credentials: "include" });
+      const json = await res.json();
+      if (!res.ok) return { error: json?.error || "Failed to fetch pending transactions" };
+      return { data: json } as ApiResult<{ transactions: any[] }>;
+    } catch (e: any) {
+      return { error: e?.message || "Network error" };
+    }
+  },
+
+  verifyTransaction: (input: { transactionId: string }) =>
+    postJson<{ message: string }>("/api/transactions/verify", input),
+
+  submitToSwift: (input: { transactionIds: string[] }) =>
+    postJson<{ message: string; submittedCount: number }>("/api/transactions/submit-to-swift", input),
 };

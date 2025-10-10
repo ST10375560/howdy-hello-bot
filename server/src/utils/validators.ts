@@ -5,6 +5,10 @@ export const PATTERNS = {
   idNumber: /^[A-Z0-9]{6,20}$/,
   accountNumber: /^\d{8,20}$/,
   username: /^[a-zA-Z0-9_-]{3,30}$/,
+  swiftCode: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/,
+  payeeAccount: /^[A-Z0-9]{8,34}$/,
+  amount: /^\d+(\.\d{1,2})?$/,
+  employeeNumber: /^[A-Z0-9]{4,15}$/,
 };
 
 export const registerSchema = z.object({
@@ -52,3 +56,10 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const employeeLoginSchema = z.object({
+  employeeNumber: z.string().trim().toUpperCase().min(4).regex(PATTERNS.employeeNumber),
+  password: z.string().min(1),
+});
+
+export type EmployeeLoginInput = z.infer<typeof employeeLoginSchema>;

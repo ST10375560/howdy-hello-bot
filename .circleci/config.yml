@@ -1,0 +1,103 @@
+version: 2.1
+
+jobs:
+  security-scan:
+    docker:
+      - image: cimg/node:18.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            npm install
+            cd server && npm install
+      - run:
+          name: Security Audit
+          command: |
+            npm audit --audit-level=moderate
+            cd server && npm audit --audit-level=moderate
+      - run:
+          name: Lint Security Issues
+          command: |
+            npm run lint
+            cd server && npx tsc --noEmit
+      - run:
+          name: SonarQube Security Analysis
+          command: |
+            npx sonar-scanner \
+              -Dsonar.projectKey=international-payment-portal \
+              -Dsonar.organization=your-org \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN \
+              -Dsonar.sources=src,server/src \
+              -Dsonar.tests=src,server/src \
+              -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+      - run:
+          name: Dependency Vulnerability Scan
+          command: |
+            npx snyk test
+            cd server && npx snyk test
+      - run:
+          name: OWASP ZAP Security Test
+          command: |
+            docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+              -t http://localhost:3001 \
+              -r zap_report.html \
+              -J zap_report.json
+
+  build-and-test:
+    docker:
+      - image: cimg/node:18.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            npm install
+            cd server && npm install
+      - run:
+          name: Build Application
+          command: |
+            npm run build
+            cd server && npm run build
+      - run:
+          name: Run Tests
+          command: |
+            npm test -- --coverage
+            cd server && npm test
+      - store_test_results:
+          path: coverage
+      - store_artifacts:
+          path: coverage
+
+  deploy-staging:
+    docker:
+      - image: cimg/node:18.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Deploy to Staging
+          command: |
+            echo "Deploying to staging environment..."
+            # Add your deployment commands here
+
+workflows:
+  security-pipeline:
+    jobs:
+      - security-scan:
+          filters:
+            branches:
+              only: main
+      - build-and-test:
+          requires:
+            - security-scan
+      - deploy-staging:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: main
+

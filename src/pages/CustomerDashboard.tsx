@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -12,24 +11,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Shield, LogOut, Send, DollarSign } from "lucide-react";
-import { paymentSchema, PaymentInput } from "@/lib/validations";
+import { api } from "@/lib/api";
+import { z } from "zod";
 
-interface Payment {
-  id: string;
+const paymentSchema = z.object({
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format"),
+  currency: z.enum(["USD", "EUR", "GBP", "ZAR"]),
+  provider: z.literal("SWIFT"),
+  payeeAccountInfo: z.string().min(8).max(34),
+  swiftCode: z.string().regex(/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/, "Invalid SWIFT code"),
+});
+
+type PaymentInput = z.infer<typeof paymentSchema>;
+
+interface Transaction {
+  _id: string;
   amount: number;
   currency: string;
-  payee_name: string;
-  swift_code: string;
+  payeeAccountInfo: string;
+  swiftCode: string;
   status: string;
-  created_at: string;
+  createdAt: string;
 }
 
 const CustomerDashboard = () => {
   const { signOut, user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [customerData, setCustomerData] = useState<any>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const {
     register,
@@ -46,36 +55,24 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     if (user) {
-      fetchCustomerData();
-      fetchPayments();
+      fetchTransactions();
     }
   }, [user]);
 
-  const fetchCustomerData = async () => {
-    const { data, error } = await supabase
-      .from("customers")
-      .select("*")
-      .eq("user_id", user!.id)
-      .single();
-
-    if (!error) setCustomerData(data);
-  };
-
-  const fetchPayments = async () => {
-    const { data: customer } = await supabase
-      .from("customers")
-      .select("id")
-      .eq("user_id", user!.id)
-      .single();
-
-    if (customer) {
-      const { data } = await supabase
-        .from("payments")
-        .select("*")
-        .eq("customer_id", customer.id)
-        .order("created_at", { ascending: false });
-
-      if (data) setPayments(data);
+  const fetchTransactions = async () => {
+    try {
+      const result = await api.getMyTransactions();
+      if (result.data) {
+        setTransactions(result.data.transactions);
+      } else if (result.error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
     }
   };
 
@@ -83,26 +80,15 @@ const CustomerDashboard = () => {
     setIsLoading(true);
     
     try {
-      const { data: customer } = await supabase
-        .from("customers")
-        .select("id")
-        .eq("user_id", user!.id)
-        .single();
-
-      if (!customer) throw new Error("Customer profile not found");
-
-      const { error } = await supabase.from("payments").insert({
-        customer_id: customer.id,
-        amount: parseFloat(data.amount),
+      const result = await api.createTransaction({
+        amount: data.amount,
         currency: data.currency,
         provider: data.provider,
-        payee_name: data.payeeName,
-        payee_account_number: data.payeeAccountNumber,
-        swift_code: data.swiftCode,
-        status: "pending",
+        payeeAccountInfo: data.payeeAccountInfo,
+        swiftCode: data.swiftCode,
       });
 
-      if (error) throw error;
+      if (result.error) throw new Error(result.error);
 
       toast({
         title: "Payment submitted!",
@@ -110,7 +96,7 @@ const CustomerDashboard = () => {
       });
 
       reset();
-      fetchPayments();
+      fetchTransactions();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -126,12 +112,14 @@ const CustomerDashboard = () => {
     const variants: Record<string, "default" | "secondary" | "destructive"> = {
       pending: "default",
       verified: "secondary",
-      submitted_to_swift: "secondary",
+      submitted: "secondary",
+      completed: "secondary",
+      failed: "destructive",
     };
 
     return (
       <Badge variant={variants[status] || "default"} className="capitalize">
-        {status.replace("_", " ")}
+        {status}
       </Badge>
     );
   };
@@ -157,11 +145,11 @@ const CustomerDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {customerData && (
+        {user && (
           <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle>Welcome, {customerData.full_name}</CardTitle>
-              <CardDescription>Account: {customerData.account_number}</CardDescription>
+              <CardTitle>Welcome, {user.fullName}</CardTitle>
+              <CardDescription>Account: {user.accountNumber}</CardDescription>
             </CardHeader>
           </Card>
         )}
@@ -212,28 +200,15 @@ const CustomerDashboard = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="payeeName">Payee Name</Label>
+                  <Label htmlFor="payeeAccountInfo">Payee Account Information</Label>
                   <Input
-                    id="payeeName"
-                    placeholder="John Doe"
-                    {...register("payeeName")}
-                    disabled={isLoading}
-                  />
-                  {errors.payeeName && (
-                    <p className="text-sm text-destructive">{errors.payeeName.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="payeeAccountNumber">Payee Account Number</Label>
-                  <Input
-                    id="payeeAccountNumber"
+                    id="payeeAccountInfo"
                     placeholder="9876543210"
-                    {...register("payeeAccountNumber")}
+                    {...register("payeeAccountInfo")}
                     disabled={isLoading}
                   />
-                  {errors.payeeAccountNumber && (
-                    <p className="text-sm text-destructive">{errors.payeeAccountNumber.message}</p>
+                  {errors.payeeAccountInfo && (
+                    <p className="text-sm text-destructive">{errors.payeeAccountInfo.message}</p>
                   )}
                 </div>
 
@@ -280,7 +255,7 @@ const CustomerDashboard = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
-                  <TableHead>Payee</TableHead>
+                  <TableHead>Account Info</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Currency</TableHead>
                   <TableHead>SWIFT Code</TableHead>
@@ -288,21 +263,21 @@ const CustomerDashboard = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {payments.length === 0 ? (
+                {transactions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      No payments yet
+                      No transactions yet
                     </TableCell>
                   </TableRow>
                 ) : (
-                  payments.map((payment) => (
-                    <TableRow key={payment.id}>
-                      <TableCell>{new Date(payment.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>{payment.payee_name}</TableCell>
-                      <TableCell>{payment.amount.toFixed(2)}</TableCell>
-                      <TableCell>{payment.currency}</TableCell>
-                      <TableCell className="font-mono">{payment.swift_code}</TableCell>
-                      <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                  transactions.map((transaction) => (
+                    <TableRow key={transaction._id}>
+                      <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{transaction.payeeAccountInfo}</TableCell>
+                      <TableCell>{transaction.amount.toFixed(2)}</TableCell>
+                      <TableCell>{transaction.currency}</TableCell>
+                      <TableCell className="font-mono">{transaction.swiftCode}</TableCell>
+                      <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                     </TableRow>
                   ))
                 )}

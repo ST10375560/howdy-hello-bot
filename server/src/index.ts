@@ -1,12 +1,15 @@
 import express from "express";
 import session from "express-session";
-import MongoStore from "connect-mongo";
+// import MongoStore from "connect-mongo"; // Disabled for testing
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import csurf from "csurf";
+import https from "https";
 import { ENV } from "./config/env";
 import { securityMiddleware, enforceHttps } from "./middleware/security";
+// import { generateSelfSignedCert, createHttpsServer } from "./utils/ssl";
 import authRouter from "./routes/auth";
+import transactionRouter from "./routes/transactions";
 
 const app = express();
 
@@ -22,22 +25,14 @@ app.use(cookieParser());
 app.use(enforceHttps);
 app.use(securityMiddleware);
 
-// Sessions (mitigate session jacking: httpOnly, sameSite=strict, secure in prod)
-const sessionStore = MongoStore.create({
-  mongoUrl: ENV.MONGODB_URI,
-  ttl: 60 * 60, // 1 hour
-  crypto: {
-    secret: ENV.SESSION_SECRET,
-  },
-});
-
+// Sessions (using memory store for testing without MongoDB)
 app.use(
   session({
     name: "sid",
     secret: ENV.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
+    // store: sessionStore, // Disabled for testing
     cookie: {
       httpOnly: true,
       sameSite: "strict",
@@ -57,6 +52,7 @@ app.get("/api/csrf-token", csrfProtection, (req, res) => {
 
 // Protected API routes use csrfProtection
 app.use("/api/auth", csrfProtection, authRouter);
+app.use("/api/transactions", csrfProtection, transactionRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
@@ -67,11 +63,15 @@ async function start() {
       console.error("MONGODB_URI is not configured. Set it in .env");
       process.exit(1);
     }
-    await mongoose.connect(ENV.MONGODB_URI);
-    console.log("Connected to MongoDB");
+    
+    // Skip MongoDB for now - we'll test other security features first
+    console.log("⚠️ Skipping MongoDB connection for testing other security features");
 
-    app.listen(ENV.PORT, () => {
-      console.log(`API listening on http://localhost:${ENV.PORT}`);
+    // Start HTTP server (SSL will be tested separately)
+    const port = ENV.PORT + 10; // Use port 3011 to avoid conflicts
+    app.listen(port, () => {
+      console.log(`📡 API listening on http://localhost:${port}`);
+      console.log(`🔧 Testing security features without SSL for now`);
     });
   } catch (err) {
     console.error("Failed to start server", err);

@@ -1,95 +1,70 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, LogOut, CheckCircle2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ShieldCheck, LogOut, CheckCircle2, Send } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { api } from "@/lib/api";
 
-interface Payment {
-  id: string;
+interface Transaction {
+  _id: string;
   amount: number;
   currency: string;
-  payee_name: string;
-  payee_account_number: string;
-  swift_code: string;
+  payeeAccountInfo: string;
+  swiftCode: string;
   status: string;
-  created_at: string;
-  customers: {
-    full_name: string;
-    account_number: string;
+  createdAt: string;
+  customerId: {
+    username: string;
+    fullName: string;
+    accountNumber: string;
   };
 }
 
 const EmployeePortal = () => {
   const { signOut, user } = useAuth();
   const { toast } = useToast();
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [employeeData, setEmployeeData] = useState<any>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchEmployeeData();
-      fetchPayments();
-    }
-  }, [user]);
+    fetchPendingTransactions();
+  }, []);
 
-  const fetchEmployeeData = async () => {
-    const { data, error } = await supabase
-      .from("employees")
-      .select("*")
-      .eq("user_id", user!.id)
-      .single();
-
-    if (!error) setEmployeeData(data);
-  };
-
-  const fetchPayments = async () => {
-    const { data, error } = await supabase
-      .from("payments")
-      .select(`
-        *,
-        customers (
-          full_name,
-          account_number
-        )
-      `)
-      .order("created_at", { ascending: false });
-
-    if (data) setPayments(data as any);
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error loading payments",
-        description: error.message,
-      });
+  const fetchPendingTransactions = async () => {
+    try {
+      const result = await api.getPendingTransactions();
+      if (result.data) {
+        setTransactions(result.data.transactions);
+      } else if (result.error) {
+        toast({
+          variant: "destructive",
+          title: "Error loading transactions",
+          description: result.error,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
     }
   };
 
-  const verifyPayment = async (paymentId: string) => {
+  const verifyTransaction = async (transactionId: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from("payments")
-        .update({
-          status: "verified",
-          verified_by: employeeData.id,
-          verified_at: new Date().toISOString(),
-        })
-        .eq("id", paymentId);
-
-      if (error) throw error;
+      const result = await api.verifyTransaction({ transactionId });
+      if (result.error) throw new Error(result.error);
 
       toast({
-        title: "Payment verified",
-        description: "The payment has been marked as verified.",
+        title: "Transaction verified",
+        description: "The transaction has been marked as verified.",
       });
 
-      fetchPayments();
+      fetchPendingTransactions();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -101,24 +76,28 @@ const EmployeePortal = () => {
     }
   };
 
-  const submitToSwift = async (paymentId: string) => {
+  const submitToSwift = async () => {
+    if (selectedTransactions.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No transactions selected",
+        description: "Please select verified transactions to submit to SWIFT.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from("payments")
-        .update({
-          status: "submitted_to_swift",
-        })
-        .eq("id", paymentId);
-
-      if (error) throw error;
+      const result = await api.submitToSwift({ transactionIds: selectedTransactions });
+      if (result.error) throw new Error(result.error);
 
       toast({
         title: "Submitted to SWIFT",
-        description: "The payment has been successfully submitted to SWIFT.",
+        description: `${result.data?.submittedCount || selectedTransactions.length} transactions submitted to SWIFT successfully.`,
       });
 
-      fetchPayments();
+      setSelectedTransactions([]);
+      fetchPendingTransactions();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -130,11 +109,21 @@ const EmployeePortal = () => {
     }
   };
 
+  const handleSelectTransaction = (transactionId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTransactions([...selectedTransactions, transactionId]);
+    } else {
+      setSelectedTransactions(selectedTransactions.filter(id => id !== transactionId));
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const config = {
       pending: { variant: "default" as const, label: "Pending" },
       verified: { variant: "secondary" as const, label: "Verified" },
-      submitted_to_swift: { variant: "secondary" as const, label: "Submitted" },
+      submitted: { variant: "secondary" as const, label: "Submitted" },
+      completed: { variant: "secondary" as const, label: "Completed" },
+      failed: { variant: "destructive" as const, label: "Failed" },
     };
 
     const { variant, label } = config[status as keyof typeof config] || config.pending;
@@ -163,11 +152,11 @@ const EmployeePortal = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {employeeData && (
+        {user && (
           <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle>Welcome, {employeeData.full_name}</CardTitle>
-              <CardDescription>Employee ID: {employeeData.employee_number}</CardDescription>
+              <CardTitle>Welcome, {user.fullName}</CardTitle>
+              <CardDescription>Employee Portal - Transaction Verification</CardDescription>
             </CardHeader>
           </Card>
         )}
@@ -181,17 +170,28 @@ const EmployeePortal = () => {
 
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>International Payment Queue</CardTitle>
-            <CardDescription>Review and verify customer payment requests</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>International Payment Queue</CardTitle>
+                <CardDescription>Review and verify customer payment requests</CardDescription>
+              </div>
+              {selectedTransactions.length > 0 && (
+                <Button onClick={submitToSwift} disabled={isLoading}>
+                  <Send className="mr-2 h-4 w-4" />
+                  Submit {selectedTransactions.length} to SWIFT
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">Select</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Account</TableHead>
-                  <TableHead>Payee</TableHead>
+                  <TableHead>Payee Account</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>SWIFT Code</TableHead>
                   <TableHead>Status</TableHead>
@@ -199,56 +199,51 @@ const EmployeePortal = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {payments.length === 0 ? (
+                {transactions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground">
-                      No payments to process
+                    <TableCell colSpan={9} className="text-center text-muted-foreground">
+                      No transactions to process
                     </TableCell>
                   </TableRow>
                 ) : (
-                  payments.map((payment) => (
-                    <TableRow key={payment.id}>
-                      <TableCell>{new Date(payment.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>{payment.customers?.full_name || "N/A"}</TableCell>
-                      <TableCell className="font-mono text-sm">{payment.customers?.account_number || "N/A"}</TableCell>
+                  transactions.map((transaction) => (
+                    <TableRow key={transaction._id}>
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{payment.payee_name}</div>
-                          <div className="text-sm text-muted-foreground font-mono">
-                            {payment.payee_account_number}
-                          </div>
-                        </div>
+                        {transaction.status === "verified" && (
+                          <Checkbox
+                            checked={selectedTransactions.includes(transaction._id)}
+                            onCheckedChange={(checked) => 
+                              handleSelectTransaction(transaction._id, checked as boolean)
+                            }
+                          />
+                        )}
                       </TableCell>
+                      <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{transaction.customerId?.fullName || "N/A"}</TableCell>
+                      <TableCell className="font-mono text-sm">{transaction.customerId?.accountNumber || "N/A"}</TableCell>
+                      <TableCell className="font-mono text-sm">{transaction.payeeAccountInfo}</TableCell>
                       <TableCell className="font-semibold">
-                        {payment.currency} {payment.amount.toFixed(2)}
+                        {transaction.currency} {transaction.amount.toFixed(2)}
                       </TableCell>
-                      <TableCell className="font-mono">{payment.swift_code}</TableCell>
-                      <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                      <TableCell className="font-mono">{transaction.swiftCode}</TableCell>
+                      <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          {payment.status === "pending" && (
-                            <Button
-                              size="sm"
-                              onClick={() => verifyPayment(payment.id)}
-                              disabled={isLoading}
-                            >
-                              <CheckCircle2 className="mr-1 h-4 w-4" />
-                              Verify
-                            </Button>
-                          )}
-                          {payment.status === "verified" && (
-                            <Button
-                              size="sm"
-                              onClick={() => submitToSwift(payment.id)}
-                              disabled={isLoading}
-                            >
-                              Submit to SWIFT
-                            </Button>
-                          )}
-                          {payment.status === "submitted_to_swift" && (
-                            <Badge variant="secondary">Complete</Badge>
-                          )}
-                        </div>
+                        {transaction.status === "pending" && (
+                          <Button
+                            size="sm"
+                            onClick={() => verifyTransaction(transaction._id)}
+                            disabled={isLoading}
+                          >
+                            <CheckCircle2 className="mr-1 h-4 w-4" />
+                            Verify
+                          </Button>
+                        )}
+                        {transaction.status === "verified" && (
+                          <Badge variant="secondary">Ready for SWIFT</Badge>
+                        )}
+                        {transaction.status === "submitted" && (
+                          <Badge variant="secondary">Submitted to SWIFT</Badge>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { employeeLoginSchema, EmployeeLoginInput } from "@/lib/validations";
+import { api } from "@/lib/api";
 
 const EmployeeLogin = () => {
   const navigate = useNavigate();
@@ -28,32 +28,16 @@ const EmployeeLogin = () => {
     setIsLoading(true);
     
     try {
-      const email = `${data.employeeNumber}@securbank.employee`;
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+      const result = await api.employeeLogin({
+        employeeNumber: data.employeeNumber,
         password: data.password,
       });
 
-      if (signInError) {
-        throw new Error("Invalid credentials. Please check your employee number and password.");
-      }
-
-      // Verify employee exists
-      const { data: employee, error: employeeError } = await supabase
-        .from("employees")
-        .select("employee_number")
-        .eq("employee_number", data.employeeNumber)
-        .maybeSingle();
-
-      if (employeeError || !employee) {
-        await supabase.auth.signOut();
-        throw new Error("Employee number not found in our records.");
-      }
+      if (result.error) throw new Error(result.error);
 
       toast({
         title: "Welcome back!",
-        description: "Login successful",
+        description: "Employee login successful",
       });
 
       navigate("/employee/portal");
