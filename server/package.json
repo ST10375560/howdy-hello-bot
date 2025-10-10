@@ -19,7 +19,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "csurf": "^1.11.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "express": "^4.19.2",
     "express-brute": "^0.4.2",
     "express-mongo-sanitize": "^2.2.0",
