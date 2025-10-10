@@ -64,11 +64,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         title: "Signed out successfully",
         description: "You have been securely logged out",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Error signing out",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Unknown error",
       });
     }
   };

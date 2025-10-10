@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
@@ -59,7 +59,7 @@ const CustomerDashboard = () => {
     }
   }, [user, fetchTransactions]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const result = await api.getMyTransactions();
       if (result.data) {
@@ -74,7 +74,7 @@ const CustomerDashboard = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  };
+  }, [toast]);
 
   const onSubmit = async (data: PaymentInput) => {
     setIsLoading(true);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ const EmployeePortal = () => {
     fetchPendingTransactions();
   }, [fetchPendingTransactions]);
 
-  const fetchPendingTransactions = async () => {
+  const fetchPendingTransactions = useCallback(async () => {
     try {
       const result = await api.getPendingTransactions();
       if (result.data) {
@@ -51,7 +51,7 @@ const EmployeePortal = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  };
+  }, [toast]);
 
   const verifyTransaction = async (transactionId: string) => {
     setIsLoading(true);

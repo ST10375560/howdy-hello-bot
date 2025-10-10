@@ -26,8 +26,8 @@ async function postJson<T>(path: string, body: unknown): Promise<ApiResult<T>> {
       return { error: (json && (json.error as string)) || "Request failed" };
     }
     return { data: json as T };
-  } catch (e: any) {
-    return { error: e?.message || "Network error" };
+  } catch (e: unknown) {
+    return { error: (e instanceof Error ? e.message : "Network error") };
   }
 }
 
@@ -54,8 +54,8 @@ export const api = {
       const json = await res.json();
       if (!res.ok) return { error: json?.error || "Unauthorized" };
       return { data: json } as ApiResult<{ user: { username: string } }>;
-    } catch (e: any) {
-      return { error: e?.message || "Network error" };
+    } catch (e: unknown) {
+      return { error: (e instanceof Error ? e.message : "Network error") };
     }
   },
 
@@ -66,7 +66,7 @@ export const api = {
     provider: string;
     payeeAccountInfo: string;
     swiftCode: string;
-  }) => postJson<{ message: string; transaction: any }>("/api/transactions", input),
+  }) => postJson<{ message: string; transaction: unknown }>("/api/transactions", input),
 
   getMyTransactions: async () => {
     try {
@@ -74,8 +74,8 @@ export const api = {
       const json = await res.json();
       if (!res.ok) return { error: json?.error || "Failed to fetch transactions" };
       return { data: json } as ApiResult<{ transactions: any[] }>;
-    } catch (e: any) {
-      return { error: e?.message || "Network error" };
+    } catch (e: unknown) {
+      return { error: (e instanceof Error ? e.message : "Network error") };
     }
   },
 
@@ -86,8 +86,8 @@ export const api = {
       const json = await res.json();
       if (!res.ok) return { error: json?.error || "Failed to fetch pending transactions" };
       return { data: json } as ApiResult<{ transactions: any[] }>;
-    } catch (e: any) {
-      return { error: e?.message || "Network error" };
+    } catch (e: unknown) {
+      return { error: (e instanceof Error ? e.message : "Network error") };
     }
   },
 

@@ -118,7 +118,10 @@ export class SSLManager {
         subject: 'CN=localhost',
         issuer: 'CN=localhost', 
         validFrom: new Date(),
-        validTo: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+        validTo: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        serialNumber: '0000000000000000',
+        fingerprint: 'SHA256:0000000000000000000000000000000000000000000000000000000000000000',
+        algorithm: 'RSA'
       };
       
       const subjectMatch = output.match(/Subject: (.+)/);

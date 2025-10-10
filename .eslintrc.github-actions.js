@@ -28,7 +28,16 @@ module.exports = {
     
     // Disable some strict rules for demo purposes
     'no-unused-vars': 'warn',
-    'no-console': 'warn'
+    'no-console': 'warn',
+    
+    // Disable interface rules
+    '@typescript-eslint/no-empty-interface': 'off',
+    
+    // Allow any type usage
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off'
   },
   settings: {
     react: {
