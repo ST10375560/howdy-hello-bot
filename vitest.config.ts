@@ -7,11 +7,17 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/__tests__/setup.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/server/**', // Exclude server tests
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'src/__tests__/',
+        'server/**', // Exclude server from coverage
         '**/*.d.ts',
         '**/*.config.*',
       ],

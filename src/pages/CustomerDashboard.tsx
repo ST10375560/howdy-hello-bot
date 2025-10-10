@@ -23,6 +23,12 @@ const paymentSchema = z.object({
 });
 
 type PaymentInput = z.infer<typeof paymentSchema>;
+type CurrencyType = PaymentInput['currency'];
+
+// Type guard for currency validation
+const isValidCurrency = (value: string): value is CurrencyType => {
+  return ["USD", "EUR", "GBP", "ZAR"].includes(value);
+};
 
 interface Transaction {
   _id: string;
@@ -97,7 +103,7 @@ const CustomerDashboard = () => {
 
       reset();
       fetchTransactions();
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred while processing your payment";
       toast({
         variant: "destructive",
@@ -181,7 +187,11 @@ const CustomerDashboard = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select onValueChange={(value) => setValue("currency", value as "USD" | "EUR" | "GBP" | "ZAR")} disabled={isLoading}>
+                  <Select onValueChange={(value) => {
+                    if (isValidCurrency(value)) {
+                      setValue("currency", value);
+                    }
+                  }} disabled={isLoading}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>

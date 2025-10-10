@@ -68,7 +68,6 @@ export function sanitizeUrl(url: string): string {
   });
   
   // Additional validation for URLs
-  // eslint-disable-next-line no-script-url
   if (!cleanUrl || cleanUrl.startsWith('javascript:') || cleanUrl.startsWith('data:')) {
     return '';
   }
@@ -162,10 +161,10 @@ export function sanitizeEmail(email: string): string {
  * Validate and sanitize phone number
  */
 export function sanitizePhoneNumber(phone: string): string {
-  const sanitized = sanitizeText(phone.replace(/[^\d+\-()[\]\s]/g, ''));
+  const sanitized = sanitizeText(phone.replace(/[^\d+()[\]\s-]/g, ''));
   
   // Basic phone validation (adjust regex as needed)
-  const phoneRegex = /^[+]?[\d\s\-()[\]]{7,20}$/;
+  const phoneRegex = /^[+]?[\d\s()[\]-]{7,20}$/;
   if (!phoneRegex.test(sanitized)) {
     throw new Error('Invalid phone number format');
   }
