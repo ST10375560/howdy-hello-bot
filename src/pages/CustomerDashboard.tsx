@@ -97,11 +97,12 @@ const CustomerDashboard = () => {
 
       reset();
       fetchTransactions();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred while processing your payment";
       toast({
         variant: "destructive",
         title: "Payment failed",
-        description: error.message || "An error occurred while processing your payment",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -180,7 +181,7 @@ const CustomerDashboard = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select onValueChange={(value) => setValue("currency", value as any)} disabled={isLoading}>
+                  <Select onValueChange={(value) => setValue("currency", value as "USD" | "EUR" | "GBP" | "ZAR")} disabled={isLoading}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>

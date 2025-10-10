@@ -20,15 +20,12 @@ const sanitizeConfig = {
   RETURN_DOM_IMPORT: false,
   SANITIZE_NAMED_PROPS: true,
   FORCE_BODY: false,
-  ADD_ATTR: [],
   FORBID_ATTR: [],
   FORBID_TAGS: [],
   FORBID_CONTENTS: [],
   ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
   ADD_TAGS: [],
-  ADD_ATTR: [],
   WHOLE_DOCUMENT: false,
-  ALLOW_UNKNOWN_PROTOCOLS: false,
   RETURN_TRUSTED_TYPE: false,
 };
 
@@ -71,6 +68,7 @@ export function sanitizeUrl(url: string): string {
   });
   
   // Additional validation for URLs
+  // eslint-disable-next-line no-script-url
   if (!cleanUrl || cleanUrl.startsWith('javascript:') || cleanUrl.startsWith('data:')) {
     return '';
   }
@@ -164,10 +162,10 @@ export function sanitizeEmail(email: string): string {
  * Validate and sanitize phone number
  */
 export function sanitizePhoneNumber(phone: string): string {
-  const sanitized = sanitizeText(phone.replace(/[^\d+\-\(\)\s]/g, ''));
+  const sanitized = sanitizeText(phone.replace(/[^\d+\-()[\]\s]/g, ''));
   
   // Basic phone validation (adjust regex as needed)
-  const phoneRegex = /^[\+]?[\d\s\-\(\)]{7,20}$/;
+  const phoneRegex = /^[+]?[\d\s\-()[\]]{7,20}$/;
   if (!phoneRegex.test(sanitized)) {
     throw new Error('Invalid phone number format');
   }
