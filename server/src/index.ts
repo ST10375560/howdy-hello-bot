@@ -9,11 +9,14 @@ import fs from "fs";
 import path from "path";
 import { ENV } from "./config/env";
 import { securityMiddleware, enforceHttps } from "./middleware/security";
-// import { generateSelfSignedCert, createHttpsServer } from "./utils/ssl";
+import { SSLManager } from "./utils/ssl";
 import authRouter from "./routes/auth";
 import transactionRouter from "./routes/transactions";
 
 const app = express();
+
+// Export app for testing
+export { app };
 
 // Trust proxy for HTTPS detection behind reverse proxies
 app.set("trust proxy", 1);
@@ -84,21 +87,29 @@ async function start() {
       console.warn("⚠️ Skipping MongoDB connection (MONGODB_URI missing or invalid)");
     }
 
-    // Use HTTPS in production
-    if (ENV.NODE_ENV === "production") {
-      const sslOptions = {
-        key: fs.readFileSync(path.resolve(__dirname, "../certs/key.pem")),
-        cert: fs.readFileSync(path.resolve(__dirname, "../certs/cert.pem")),
-      };
-
-      https.createServer(sslOptions, app).listen(port, () => {
+    // Use HTTPS for development and production
+    if (true) { // Always use HTTPS for security demo
+      const sslManager = new SSLManager();
+      
+      // Generate or use existing certificates
+      const sslConfig = sslManager.generateSelfSignedCert('localhost', 365);
+      
+      // Check certificate expiry
+      sslManager.checkCertificateExpiry(sslConfig.certPath);
+      
+      // Create HTTPS server with enhanced security
+      const httpsServer = sslManager.createHttpsServer(app, sslConfig);
+      
+      httpsServer.listen(port, () => {
         console.log(`🔒 HTTPS API listening on https://localhost:${port}`);
+        console.log(`🔐 SSL Certificate: ${sslManager.getCertificateInfo(sslConfig.certPath).subject}`);
+        console.log(`📅 Valid until: ${sslManager.getCertificateInfo(sslConfig.certPath).validTo.toISOString()}`);
       });
     } else {
       // Development / testing without SSL
       app.listen(port, () => {
         console.log(`📡 API listening on http://localhost:${port}`);
-        console.log(`🔧 Running without SSL for now`);
+        console.log(`🔧 Running without SSL in development mode`);
       });
     }
   } catch (err) {

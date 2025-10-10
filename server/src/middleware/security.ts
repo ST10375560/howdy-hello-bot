@@ -4,6 +4,7 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import ExpressBrute from "express-brute";
+// @ts-ignore - express-brute MemoryStore doesn't have proper types
 import MemoryStore from "express-brute/lib/MemoryStore";
 import { ENV } from "../config/env";
 import { type RequestHandler } from "express";
@@ -68,3 +69,20 @@ export const enforceHttps: RequestHandler = (req, res, next) => {
   const host = req.headers.host;
   return res.redirect(301, `https://${host}${req.originalUrl}`);
 };
+
+// Export aliases for test compatibility
+export const authLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 20, // Limit each IP to 20 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many authentication attempts, please try again later.",
+});
+
+export const globalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests, please try again later.",
+});

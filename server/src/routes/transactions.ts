@@ -127,7 +127,7 @@ router.post("/verify", transactionLimiter, async (req, res) => {
 
     // Update transaction status
     transaction.status = "verified";
-    transaction.verifiedBy = uid;
+    transaction.verifiedBy = uid as any;
     transaction.verifiedAt = new Date();
     await transaction.save();
 

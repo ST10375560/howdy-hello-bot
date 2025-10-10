@@ -20,12 +20,13 @@ if (!process.env.MONGODB_URI || !process.env.SESSION_SECRET) {
 }
 
 export const ENV = {
-  NODE_ENV: process.env.NODE_ENV || "production",
+  NODE_ENV: process.env.NODE_ENV || "development",
   PORT: Number(process.env.PORT || 3001),
-  MONGODB_URI: process.env.MONGODB_URI || "mongodb+srv://AshtonZackey:Zackey101@cluster0.n7h5iw1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  MONGODB_URI: process.env.MONGODB_URI || "mongodb+srv://st10382828:X5puQLvc44K2JgIJ@insy7314.5zeyqaq.mongodb.net/",
   SESSION_SECRET: process.env.SESSION_SECRET || "change_me_in_dotenv",
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "https://localhost:8080",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:8080",
   HTTPS_ONLY: (process.env.HTTPS_ONLY || "false").toLowerCase() === "true",
+  PASSWORD_PEPPER: process.env.PASSWORD_PEPPER || "default-pepper-change-in-production",
 } as const;
 
 if (!ENV.MONGODB_URI) {

@@ -20,6 +20,18 @@ export default defineConfig(({ mode }) => {
           target: "https://localhost:3011", // backend HTTPS
           changeOrigin: true,
           secure: false, // allow self-signed certs
+          rejectUnauthorized: false, // ignore SSL certificate errors
+          configure: (proxy, options) => {
+            proxy.on('error', (err, req, res) => {
+              console.log('proxy error', err);
+            });
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              console.log('Sending Request to the Target:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, res) => {
+              console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            });
+          },
         },
       },
     },

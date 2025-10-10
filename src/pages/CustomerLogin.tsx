@@ -10,10 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, ArrowLeft } from "lucide-react";
 import { customerLoginSchema, CustomerLoginInput } from "@/lib/validations";
 import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -40,6 +42,8 @@ const CustomerLogin = () => {
         description: "Login successful",
       });
 
+      // Refresh auth state and then navigate
+      await refreshAuth();
       navigate("/customer/dashboard");
     } catch (error: any) {
       toast({

@@ -10,11 +10,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, ArrowLeft } from "lucide-react";
 import { customerRegistrationSchema, CustomerRegistrationInput } from "@/lib/validations";
 import { api } from "@/lib/api";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
+import { useAuth } from "@/hooks/useAuth";
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   const {
     register,
@@ -136,14 +140,16 @@ const CustomerRegister = () => {
                   type="password"
                   placeholder="••••••••"
                   {...register("password")}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    register("password").onChange(e);
+                  }}
                   disabled={isLoading}
                 />
                 {errors.password && (
                   <p className="text-sm text-destructive">{errors.password.message}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  Must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character
-                </p>
+                <PasswordStrengthMeter password={password} />
               </div>
 
               <Button

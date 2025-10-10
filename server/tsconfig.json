@@ -8,7 +8,10 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node", "express"]
+    "types": ["node", "express"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/__tests__", "src/**/*.test.ts", "src/**/*.spec.ts"]
 }
