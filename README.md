@@ -1,46 +1,29 @@
 # 🔒 SecurBank International - Secure Banking Portal
 
-[![Security Pipeline](https://github.com/yourusername/howdy-hello-bot/workflows/Security%20Pipeline/badge.svg)](https://github.com/yourusername/howdy-hello-bot/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+
 
 > **🏆 Academic Excellence Project - Demonstrating Enterprise-Grade Security Implementation**
 
-A comprehensive banking portal showcasing advanced security implementations that **exceeds academic rubric requirements**. This project demonstrates real-world security practices including password security, input validation, SSL/TLS encryption, attack protection, and automated DevSecOps pipelines.
+A comprehensive banking portal showcasing advanced security implementations. This project demonstrates real-world security practices including password security, input validation, SSL/TLS encryption, attack protection, and automated DevSecOps pipelines.
 
-## 🎯 **Project Highlights**
+## **Project Highlights**
 
-- ✅ **94-100% Rubric Score** - Exceeds all academic requirements
-- 🔒 **Enterprise-Grade Security** - Production-ready implementations
-- 🚀 **Full-Stack Application** - React frontend + Express.js backend
-- 🛡️ **Comprehensive Testing** - 90%+ test coverage with security focus
-- 🔄 **Automated CI/CD** - GitHub Actions with security scanning
-- 📊 **Real-Time Monitoring** - Security headers and vulnerability scanning
+- **Enterprise-Grade Security** - Production-ready implementations
+- **Full-Stack Application** - React frontend + Express.js backend
+- **Comprehensive Testing** - 90%+ test coverage with security focus
+- **Automated CI/CD** - GitHub Actions with security scanning
+- **Real-Time Monitoring** - Security headers and vulnerability scanning
 
-## 🏆 **Rubric Compliance Summary**
 
-| Criterion | Score | Implementation Status |
-|-----------|-------|----------------------|
-| **Password Security** | 8-10/10 | ✅ **EXCEEDS** - bcrypt + pepper + validation + breach checking |
-| **Input Whitelisting** | 8-10/10 | ✅ **EXCEEDS** - Regex patterns + Zod + XSS prevention |
-| **SSL/TLS Security** | 15-18/20 | ✅ **EXCEEDS** - HTTPS + HSTS + secure certificates |
-| **Attack Protection** | 28-30/30 | ✅ **EXCEEDS** - Helmet + rate limiting + CSRF + brute force |
-| **DevSecOps Pipeline** | 8-9/10 | ✅ **EXCEEDS** - Automated testing + security scanning |
+## **Quick Start Guide**
 
-**🎯 Total Estimated Score: 75-80/80 (94-100%)**
-
-## 🚀 **Quick Start Guide**
-
-### 📋 Prerequisites
+### Prerequisites
 
 - **Node.js** 18+ ([Install with nvm](https://github.com/nvm-sh/nvm))
 - **MongoDB** (Local or [MongoDB Atlas](https://www.mongodb.com/atlas))
 - **Git** (for SSL certificate generation)
 
-### ⚡ Installation & Setup
+###  Installation & Setup
 
 ```bash
 # 1. Clone the repository
@@ -62,15 +45,10 @@ node generate-trusted-certs.js
 npm run dev:all
 ```
 
-### 🌐 **Application URLs**
 
-- **Frontend Portal**: https://localhost:5173
-- **Backend API**: https://localhost:3011
-- **API Documentation**: https://localhost:3011/api/docs
+## **Security Architecture Deep Dive**
 
-## 🛡️ **Security Architecture Deep Dive**
-
-### 🔐 **Password Security Implementation**
+###  **Password Security Implementation**
 
 ```typescript
 // Advanced password security with enterprise-grade features
@@ -93,7 +71,7 @@ const passwordSecurity = new PasswordSecurityManager();
 - No common patterns or dictionary words
 - Score of 70+ points required
 
-### 🔍 **Input Validation & Whitelisting**
+### **Input Validation & Whitelisting**
 
 ```typescript
 // Comprehensive input validation with regex patterns
@@ -120,7 +98,7 @@ const userSchema = z.object({
 - MongoDB injection prevention
 - Real-time client-side validation
 
-### 🔒 **SSL/TLS Security Configuration**
+### **SSL/TLS Security Configuration**
 
 ```typescript
 // Enterprise-grade SSL implementation
@@ -136,7 +114,7 @@ const sslManager = new SSLManager();
 ✅ Perfect Forward Secrecy (PFS) support
 ```
 
-### 🛡️ **Attack Protection Implementation**
+### **Attack Protection Implementation**
 
 ```typescript
 // Multi-layered security middleware
@@ -172,9 +150,9 @@ app.use(rateLimit({
 - **XSS protection** with DOMPurify and input sanitization
 - **Session security** with regeneration and secure storage
 
-## 🧪 **Testing & Quality Assurance**
+##  **Testing & Quality Assurance**
 
-### 📊 **Test Coverage & Results**
+### **Test Coverage & Results**
 
 ```bash
 # Run comprehensive test suites
@@ -190,7 +168,7 @@ npm run test:coverage       # Frontend coverage
 cd server && npm run test:coverage  # Backend coverage
 ```
 
-### 🔍 **Security Testing Categories**
+### **Security Testing Categories**
 
 - **Authentication Security**: Password hashing, session management, JWT validation
 - **Input Validation**: XSS prevention, injection protection, data sanitization
@@ -198,9 +176,9 @@ cd server && npm run test:coverage  # Backend coverage
 - **CSRF Protection**: Token validation, origin checking
 - **SSL/TLS**: Certificate validation, HTTPS enforcement, HSTS headers
 
-## 🔄 **DevSecOps Pipeline**
+## **DevSecOps Pipeline**
 
-### 🤖 **Automated Security Pipeline**
+### **Automated Security Pipeline**
 
 Our GitHub Actions workflow includes comprehensive security validation:
 
@@ -217,14 +195,14 @@ Security Pipeline Features:
 ✅ Build and deployment validation
 ```
 
-### 📅 **Pipeline Triggers**
+### **Pipeline Triggers**
 
 - **Push to main/develop**: Full security scan and testing
 - **Pull Requests**: Security validation and code review
 - **Daily Schedule**: Automated vulnerability scanning at 2 AM UTC
 - **Manual Trigger**: On-demand security testing and reporting
 
-### 📈 **Pipeline Results**
+### **Pipeline Results**
 
 The pipeline generates comprehensive reports including:
 - Security vulnerability assessments
@@ -233,7 +211,7 @@ The pipeline generates comprehensive reports including:
 - Dependency security analysis
 - Automated security recommendations
 
-## 🏗️ **Project Architecture**
+## **Project Architecture**
 
 ```
 howdy-hello-bot/
@@ -286,9 +264,9 @@ howdy-hello-bot/
 └── 📁 docs/                         # Documentation
 ```
 
-## ⚙️ **Configuration Guide**
+##  **Configuration Guide**
 
-### 🔧 **Environment Variables**
+###  **Environment Variables**
 
 Create a `.env` file in the root directory:
 
@@ -321,113 +299,4 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -node
 
 ### 📹 **Recommended Demo Flow (10-12 minutes)**
 
-#### 1. **SSL/TLS Security** (2-3 minutes)
-- Show HTTPS padlock in browser address bar
-- Demonstrate certificate details in browser
-- Show HSTS headers in developer tools
-- Navigate between pages to show secure connections
 
-#### 2. **Password Security** (3-4 minutes)
-- Attempt to register with weak password (show rejection)
-- Use password strength meter for strong password creation
-- Show real-time validation feedback
-- Demonstrate successful registration with strong password
-
-#### 3. **Input Validation & Whitelisting** (3-4 minutes)
-- Try XSS injection in registration forms (show blocking)
-- Test invalid SWIFT codes, amounts, email formats
-- Demonstrate regex pattern validation
-- Show client-side and server-side validation
-
-#### 4. **Attack Protection** (2-3 minutes)
-- Show rate limiting with rapid requests
-- Demonstrate CSRF protection
-- Display security headers with Helmet.js
-- Show session security features
-
-#### 5. **DevSecOps Pipeline** (1-2 minutes)
-- Show GitHub Actions workflow
-- Display security test results
-- Show automated vulnerability scanning
-- Demonstrate build and deployment pipeline
-
-### 🎯 **Key Points to Highlight**
-
-- **Professional UI/UX** with modern banking interface
-- **Real-time security feedback** for user actions
-- **Comprehensive error handling** with user-friendly messages
-- **Responsive design** across different devices
-- **Accessibility features** for inclusive banking
-
-## 📚 **Documentation & Resources**
-
-### 📖 **Technical Documentation**
-
-- [Security Implementation Report](SECURITY.md) - Detailed security analysis
-- [Testing Guide](TESTING.md) - Comprehensive testing procedures
-- [SSL Setup Instructions](SSL_SETUP.md) - Certificate configuration
-- [API Documentation](docs/API.md) - Backend API reference
-- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment
-
-### 🔗 **External Resources**
-
-- [OWASP Security Guidelines](https://owasp.org/www-project-top-ten/)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
-- [React Security Guidelines](https://reactjs.org/docs/security.html)
-- [MongoDB Security Checklist](https://docs.mongodb.com/manual/security/)
-
-## 🤝 **Contributing**
-
-We welcome contributions to improve security and functionality:
-
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-security-feature`)
-3. **Commit your changes** (`git commit -m 'Add amazing security feature'`)
-4. **Push to the branch** (`git push origin feature/amazing-security-feature`)
-5. **Open a Pull Request**
-
-### 🔍 **Contribution Guidelines**
-
-- Follow existing code style and patterns
-- Add comprehensive tests for new features
-- Update documentation for any changes
-- Ensure all security tests pass
-- Follow the established security practices
-
-## 📄 **License**
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 **Support & Contact**
-
-For support, questions, or security concerns:
-
-- 📧 **Email**: security@securbank.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/howdy-hello-bot/issues)
-- 📖 **Documentation**: Check the `/docs` folder
-- 🔒 **Security**: Review the security implementation reports
-
-## 🏆 **Academic Achievement**
-
-This project demonstrates **exceptional understanding** of:
-
-- ✅ **Enterprise Security Practices**
-- ✅ **Full-Stack Development**
-- ✅ **DevOps and CI/CD Pipelines**
-- ✅ **Testing and Quality Assurance**
-- ✅ **Modern Web Technologies**
-- ✅ **Professional Software Development**
-
----
-
-<div align="center">
-
-**🔒 Built with ❤️ for Academic Excellence and Real-World Security**
-
-*Demonstrating enterprise-grade security practices for academic achievement*
-
-[![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Powered by React](https://img.shields.io/badge/Powered%20by-React-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
-[![Secured with Express](https://img.shields.io/badge/Secured%20with-Express-000000?logo=express&logoColor=white)](https://expressjs.com/)
-
-</div>
