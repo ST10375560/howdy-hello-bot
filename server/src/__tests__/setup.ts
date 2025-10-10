@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 
 // Increase timeout for database operations
-(jest as any).setTimeout(30000);
+jest.setTimeout(30000);
 
 // Setup test database connection
 beforeAll(async () => {

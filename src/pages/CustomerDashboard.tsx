@@ -57,7 +57,7 @@ const CustomerDashboard = () => {
     if (user) {
       fetchTransactions();
     }
-  }, [user]);
+  }, [user, fetchTransactions]);
 
   const fetchTransactions = async () => {
     try {

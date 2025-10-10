@@ -34,7 +34,7 @@ const EmployeePortal = () => {
 
   useEffect(() => {
     fetchPendingTransactions();
-  }, []);
+  }, [fetchPendingTransactions]);
 
   const fetchPendingTransactions = async () => {
     try {

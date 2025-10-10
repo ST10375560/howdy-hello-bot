@@ -1,0 +1,38 @@
+module.exports = {
+  extends: [
+    '@eslint/js/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:security/recommended'
+  ],
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true
+    }
+  },
+  env: {
+    browser: true,
+    es2020: true,
+    node: true
+  },
+  rules: {
+    // Disable fast refresh warnings for GitHub Actions
+    'react-refresh/only-export-components': 'off',
+    
+    // Allow any types in test files
+    '@typescript-eslint/no-explicit-any': 'off',
+    
+    // Allow missing dependencies in useEffect for now
+    'react-hooks/exhaustive-deps': 'warn',
+    
+    // Disable some strict rules for demo purposes
+    'no-unused-vars': 'warn',
+    'no-console': 'warn'
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
+  }
+};

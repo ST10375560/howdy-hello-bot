@@ -1,12 +1,12 @@
 // Simple security validation tests
 import request from 'supertest';
+import bcrypt from 'bcrypt';
 import { app } from '../index';
 
 describe('Core Security Features', () => {
   describe('Password Security', () => {
     it('should hash passwords with bcrypt', async () => {
       const testPassword = 'TestPassword123!';
-      const bcrypt = require('bcrypt');
       
       // Test bcrypt is working
       const hash = await bcrypt.hash(testPassword, 12);
@@ -24,7 +24,6 @@ describe('Core Security Features', () => {
     });
 
     it('should have proper salt rounds', () => {
-      const bcrypt = require('bcrypt');
       const testPassword = 'TestPassword123!';
       
       // Test with 12 salt rounds (secure)
