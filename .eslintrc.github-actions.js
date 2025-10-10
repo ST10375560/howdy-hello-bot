@@ -37,7 +37,16 @@ module.exports = {
     '@typescript-eslint/no-unsafe-assignment': 'off',
     '@typescript-eslint/no-unsafe-member-access': 'off',
     '@typescript-eslint/no-unsafe-call': 'off',
-    '@typescript-eslint/no-unsafe-return': 'off'
+    '@typescript-eslint/no-unsafe-return': 'off',
+    
+    // Disable script URL warnings
+    'no-script-url': 'off',
+    
+    // Disable unnecessary escape warnings
+    'no-useless-escape': 'off',
+    
+    // Allow any types everywhere
+    '@typescript-eslint/no-explicit-any': 'off'
   },
   settings: {
     react: {

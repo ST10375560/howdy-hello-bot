@@ -24,7 +24,7 @@ const sanitizeConfig = {
   FORBID_ATTR: [],
   FORBID_TAGS: [],
   FORBID_CONTENTS: [],
-  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
   ADD_TAGS: [],
   ADD_ATTR: [],
   WHOLE_DOCUMENT: false,
@@ -65,7 +65,7 @@ export function sanitizeText(text: string): string {
  */
 export function sanitizeUrl(url: string): string {
   const cleanUrl = sanitizer(url, {
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
   });
@@ -91,7 +91,7 @@ export function sanitizeJson<T>(data: T): T {
   }
   
   if (data && typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       const sanitizedKey = sanitizeText(key);
       sanitized[sanitizedKey] = sanitizeJson(value);
@@ -105,8 +105,8 @@ export function sanitizeJson<T>(data: T): T {
 /**
  * Sanitize form data
  */
-export function sanitizeFormData(formData: Record<string, any>): Record<string, any> {
-  const sanitized: Record<string, any> = {};
+export function sanitizeFormData(formData: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
   
   for (const [key, value] of Object.entries(formData)) {
     const sanitizedKey = sanitizeText(key);

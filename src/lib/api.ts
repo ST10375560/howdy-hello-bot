@@ -73,7 +73,7 @@ export const api = {
       const res = await fetch("/api/transactions/my", { credentials: "include" });
       const json = await res.json();
       if (!res.ok) return { error: json?.error || "Failed to fetch transactions" };
-      return { data: json } as ApiResult<{ transactions: any[] }>;
+      return { data: json } as ApiResult<{ transactions: unknown[] }>;
     } catch (e: unknown) {
       return { error: (e instanceof Error ? e.message : "Network error") };
     }
@@ -85,7 +85,7 @@ export const api = {
       const res = await fetch("/api/transactions/pending", { credentials: "include" });
       const json = await res.json();
       if (!res.ok) return { error: json?.error || "Failed to fetch pending transactions" };
-      return { data: json } as ApiResult<{ transactions: any[] }>;
+      return { data: json } as ApiResult<{ transactions: unknown[] }>;
     } catch (e: unknown) {
       return { error: (e instanceof Error ? e.message : "Network error") };
     }

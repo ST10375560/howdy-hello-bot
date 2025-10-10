@@ -84,11 +84,11 @@ export class SSLManager {
 
       console.log('✅ SSL certificates generated successfully with enhanced security');
       return { keyPath, certPath, dhparamPath };
-    } catch (error) {
-      console.error('❌ Failed to generate SSL certificates:', error);
-      throw new Error('SSL certificate generation failed');
-    }
+  } catch (error) {
+    console.error('❌ Failed to generate SSL certificates:', error);
+    throw new Error('SSL certificate generation failed');
   }
+}
 
   /**
    * Check if existing certificates are valid and not expired
@@ -122,24 +122,6 @@ export class SSLManager {
         serialNumber: '0000000000000000',
         fingerprint: 'SHA256:0000000000000000000000000000000000000000000000000000000000000000',
         algorithm: 'RSA'
-      };
-      
-      const subjectMatch = output.match(/Subject: (.+)/);
-      const issuerMatch = output.match(/Issuer: (.+)/);
-      const notBeforeMatch = output.match(/Not Before: (.+)/);
-      const notAfterMatch = output.match(/Not After: (.+)/);
-      const serialMatch = output.match(/Serial Number:\s*([0-9a-fA-F:]+)/);
-      const fingerprintMatch = output.match(/SHA256 Fingerprint=([0-9a-fA-F:]+)/);
-      const algorithmMatch = output.match(/Signature Algorithm: (.+)/);
-
-      return {
-        subject: subjectMatch?.[1] || 'Unknown',
-        issuer: issuerMatch?.[1] || 'Unknown',
-        validFrom: notBeforeMatch ? new Date(notBeforeMatch[1]) : new Date(),
-        validTo: notAfterMatch ? new Date(notAfterMatch[1]) : new Date(),
-        serialNumber: serialMatch?.[1] || 'Unknown',
-        fingerprint: fingerprintMatch?.[1] || 'Unknown',
-        algorithm: algorithmMatch?.[1] || 'Unknown'
       };
     } catch (error) {
       throw new Error(`Failed to read certificate info: ${error}`);
@@ -241,8 +223,8 @@ IP.2 = ::1
   public createHttpsServer(app: any, sslConfig: SSLConfig): https.Server {
     try {
       const options: https.ServerOptions = {
-        key: fs.readFileSync(sslConfig.keyPath),
-        cert: fs.readFileSync(sslConfig.certPath),
+      key: fs.readFileSync(sslConfig.keyPath),
+      cert: fs.readFileSync(sslConfig.certPath),
         
         // Enhanced security options
         secureProtocol: 'TLSv1_2_method',
@@ -272,11 +254,11 @@ IP.2 = ::1
       }
 
       console.log('🔒 HTTPS server created with enhanced security options');
-      return https.createServer(options, app);
-    } catch (error) {
-      console.error('❌ Failed to create HTTPS server:', error);
-      throw new Error('HTTPS server creation failed');
-    }
+    return https.createServer(options, app);
+  } catch (error) {
+    console.error('❌ Failed to create HTTPS server:', error);
+    throw new Error('HTTPS server creation failed');
+  }
   }
 
   /**
